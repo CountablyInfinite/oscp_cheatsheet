@@ -8,6 +8,6 @@ The following collection is a wild (but structured) selection of commands, snipp
 
 ### Initial fast TCP scan
 
-```shell
-nmap -v -sS -sV -Pn --top-ports 1000 -oA first_10.10.10.181 10.10.10.181
+```bash
+nmap -v -sS -sV -Pn --top-ports 1000 -oA initial_scan_192.168.0.1 192.168.0.1
 ```
