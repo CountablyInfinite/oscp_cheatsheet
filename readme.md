@@ -3,7 +3,7 @@
 The following collection is a wild (but structured) selection of commands, snippets, links, exploits, tools, lists and techniques I personally tested and used on my journey to becoming an OSCP. I will extend and update it from time to time, so let's see where this is going. 
 
 ## Disclaimer
-This cheatsheet is definitely not "complete". I am sure i forgot to write down hundreds of essential commands and you'll  probably ask yourself how i've even made it through the exam. Feel free to issue a PR if you want to help to improve the list.
+This cheatsheet is definitely not "complete". I am sure i forgot to write down hundreds of essential commands, use most of them in the wrong way with unnessecary flags and you'll  probably soon ask yourself how i've even made it through the exam. Feel free to issue a PR if you want to help to improve the list.
 **Use for educational pruposes only!**
 
 ***
@@ -50,7 +50,7 @@ nmap -v -sU -T4 -Pn --top-ports 100 -oA top_100_UDP_192.168.0.1 192.168.0.1
 nmap -v -sS  -Pn --script vuln --script-args=unsafe=1 -oA full_vuln_scan_192.168.0.1 192.168.0.1
 ```
 
-#### Vulners Script
+### Vulners Vulnerability Script
 
 ```bash
 nmap -v -sS  -Pn --script nmap-vulners -oA full_vuln_scan_192.168.0.1 192.168.0.1
@@ -65,14 +65,76 @@ nmap -v -sS -p 445,139 -Pn --script smb-vuln* --script-args=unsafe=1 -oA smb_vul
 ## Gobuster
 
 ### HTTP
-#### Fast Scan with a big list
+#### Fast Scan (Small List)
 
 ```bash
-gobuster dir -e -u http://10.10.10.43 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t 20
+gobuster dir -e -u http://192.168.0.1 -w /usr/share/wordlists/dirb/big.txt -t 20
 ```
-#### Fast Scan with a small list
+#### Fast Scan (Big List)
 
 ```bash
-gobuster dir -e -u http://10.10.10.51 -w /usr/share/wordlists/dirb/big.txt -x php,txt,html,htm,cgi,sh,bak,aspx -t 50
+gobuster dir -e -u http://192.168.0.1 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -t 20
 ```
+
+#### Slow Scan (Check File Extensions)
+```bash
+gobuster dir -e -u http://10.10.10.43 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x php,txt,html,cgi,sh,bak,aspx -t 20
+```
+
+### HTTPS
+
+Set the `--insecuressl` flag.
+
+## SMBCLIENT
+
+To fix `NT_STATUS_CONNECTION_DISCONNECTED` errors in new Kali installations add `client min protocol = NT1` to your `\etc\samba\smb.conf` file.
+
+### List Shares (As Guest)
+
+```bash
+smbclient -U guest -L 192.168.0.1
+```
+
+### Connect to A Share (As User John)
+
+```bash
+smbclient \\\\192.168.0.1\\Users -U c.smith
+```
+
+### Download All Files From A Directory Recursively
+
+```bash
+smbclient '\\server\share' -N -c 'prompt OFF;recurse ON;cd 'path\to\directory\';lcd '~/path/to/download/to/';mget *'
+
+example:
+smbclient \\\\192.168.0.1\\Data -U John -c 'prompt OFF;recurse ON;cd '\Users\John\';lcd '/tmp/John';mget *'
+```
+
+### Alternate File Streams
+
+#### List Streams
+
+```bash
+smbclient \\\\192.168.0.1\\Data -U John -c 'allinfo "\Users\John\file.txt"'
+```
+
+#### Download Stream By Name (:SECRET)
+```bash
+smbclient \\\\192.168.0.1\\Data -U John
+
+get "\Users\John\file.txt:SECRET:$DATA"
+```
+
+## Enum4Linux
+
+### Scan Hos
+```bash
+enum4linux 192.168.0.1
+```
+### Scan Host, Suppress Errors
+```bash
+enum4linux 192.168.0.1 | grep -Ev '^(Use of)' > enum4linux.out 
+```
+
+
 
