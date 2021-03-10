@@ -6,6 +6,7 @@ The following collection is a wild (but structured) selection of commands, snipp
 
 ## Disclaimer
 This cheatsheet is definitely not "complete". I am sure i forgot to write down hundreds of essential commands, used most of them in the wrong way with unnessecary flags and you'll  probably soon ask yourself how i've even made it through the exam. Also you might think a certain tool used should be in another phase of the attack (e.g certain nmap vulnerabitly scripts should be in Exploitation). That's okay, imho the edges between different stages of a penetration test are very blurry. Feel free to issue a PR if you want to help to improve the list.
+*There are a number of tools you are not allowed to use during your OSCP exam. At the time of writing, sqlmap is one of them. Check which tools are restricted/banned before you use them in your exam. You can find detailed information about tool usage in the exam guidelines.*
 **Use for educational purposes only!**
 
 ***
@@ -289,6 +290,8 @@ https://github.com/pwnwiki/webappdefaultsdb/blob/master/README.md
 ***
 
 ## SQLMAP
+
+**DISCLAIMER: There are a number of tools you are not allowed to use in your OSCP exam. At the time of writing, sqlmap is one of them. Check which tools are restricted/banned before you use them during your exam. You can find detailed information about tool usage in the exam guidelines.**
 
 ### Get Request
 
